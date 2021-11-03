@@ -36,7 +36,8 @@ let players: Player[] = [];
 const pubChats: Chat[] = [];
 
 app.get("/", (req: Request, res: Response) => {
-  res.sendFile(__dirname + "/index.html");
+  res.status(200).send("Hello Rainy Words!");
+  // res.sendFile(__dirname + "/index.html");
 });
 
 // Admin Login
