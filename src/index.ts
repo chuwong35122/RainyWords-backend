@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 });
 const MAX_PLAYERS = 2;
 let LOBBY_TIME = 20;
-let GAME_TIME = 180;
+let GAME_TIME = 60;
 let players: Player[] = [];
 const pubChats: Chat[] = [];
 
@@ -90,7 +90,7 @@ app.post("/reset", (req: Request, res: Response) => {
     if (isAdmin) {
       players = [];
       LOBBY_TIME = 20;
-      GAME_TIME = 180;
+      GAME_TIME = 60;
       return res.status(200).send({ status: "success", message: players });
     }
   } catch (err) {
