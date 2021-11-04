@@ -30,7 +30,9 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
-const MAX_PLAYERS = 20;
+const MAX_PLAYERS = 2;
+let LOBBY_TIME = 20;
+let GAME_TIME = 180;
 let players = [];
 const pubChats = [];
 app.get("/", (req, res) => {
@@ -82,6 +84,8 @@ app.post("/reset", (req, res) => {
         const isAdmin = (0, admin_1.authenticateToken)(token);
         if (isAdmin) {
             players = [];
+            LOBBY_TIME = 20;
+            GAME_TIME = 180;
             return res.status(200).send({ status: "success", message: players });
         }
     }
@@ -124,6 +128,18 @@ app.post("/startgame", (req, res) => {
 });
 io.on("connection", (socket) => {
     console.log(`${socket.id} connected`);
+    // --------------------- ADMINS FUNCTION -------------------------------
+    socket.on("startLobbyCountdown", function () {
+        setInterval(() => {
+            io.emit("getCountdown", LOBBY_TIME);
+        }, 1000);
+    });
+    socket.on("startGameCountdown", function () {
+        setInterval(() => {
+            io.emit("getCountdown", GAME_TIME);
+        }, 1000);
+    });
+    // --------------------- PLAYERS FUNCTION -------------------------------
     // Send players to client once client connects
     socket.on("onRetrievePlayers", function () {
         io.to(socket.id).emit("retrievePlayers", players);
@@ -150,11 +166,6 @@ io.on("connection", (socket) => {
             pubChats.push(data);
         // Emit, then setState in Front-end.
         io.emit("onUpdatePublicChat", pubChats);
-    });
-    socket.on("privateChat", function (socketDestId, data) {
-        // Save in front-end, backend will only send the message.
-        // Emit, then setState in Front-end.
-        socket.to(socketDestId).emit("privateChat", socket.id, data);
     });
     socket.on("disconnect", function () {
         console.log(`${socket.id} disconnected`);
