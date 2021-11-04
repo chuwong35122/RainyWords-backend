@@ -163,6 +163,8 @@ io.on("connection", (socket) => {
         io.emit("updatePlayerList", players);
     });
 });
-http.listen(process.env.PORT, () => {
+
+const port = process.env.PORT || 3000
+http.listen(port, () => {
     console.log(`Listening to port ${process.env.PORT}`);
 });
