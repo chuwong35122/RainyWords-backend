@@ -139,13 +139,15 @@ io.on("connection", (socket: Socket) => {
   // --------------------- ADMINS FUNCTION -------------------------------
   socket.on("startLobbyCountdown", function () {
     setInterval(() => {
-      io.emit("getCountdown", LOBBY_TIME);
+      io.emit("getLobbyCountdown", LOBBY_TIME);
+      LOBBY_TIME--;
     }, 1000);
   });
 
   socket.on("startGameCountdown", function () {
     setInterval(() => {
-      io.emit("getCountdown", GAME_TIME);
+      io.emit("getGameCountdown", GAME_TIME);
+      GAME_TIME--;
     }, 1000);
   });
 
