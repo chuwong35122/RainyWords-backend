@@ -126,18 +126,30 @@ app.post("/startgame", (req, res) => {
             .send({ status: "bad request", message: "Invalid token." });
     }
 });
+function lobbyTimer() {
+    if (LOBBY_TIME >= 0) {
+        io.emit("getLobbyCountdown", LOBBY_TIME);
+        LOBBY_TIME--;
+    }
+    else
+        clearInterval();
+}
+function gameTimer() {
+    if (GAME_TIME >= 0) {
+        io.emit("getGameCountdown", GAME_TIME);
+        GAME_TIME--;
+    }
+    else
+        clearInterval();
+}
 io.on("connection", (socket) => {
     console.log(`${socket.id} connected`);
     // --------------------- ADMINS FUNCTION -------------------------------
     socket.on("startLobbyCountdown", function () {
-        setInterval(() => {
-            io.emit("getCountdown", LOBBY_TIME);
-        }, 1000);
+        setInterval(lobbyTimer, 1000);
     });
     socket.on("startGameCountdown", function () {
-        setInterval(() => {
-            io.emit("getCountdown", GAME_TIME);
-        }, 1000);
+        setInterval(gameTimer, 1000);
     });
     // --------------------- PLAYERS FUNCTION -------------------------------
     // Send players to client once client connects
