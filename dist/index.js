@@ -16,7 +16,7 @@ const bodyParser = require("body-parser");
 const http = require("http").Server(app);
 const io = require("socket.io")(http, {
     cors: {
-        origin: env.CLIENT_ENDPOINT,
+        origin: "*",
         methods: ["GET", "POST"],
         allowedHeaders: ["rainy-word"],
         credentials: true,
@@ -163,8 +163,7 @@ io.on("connection", (socket) => {
         io.emit("updatePlayerList", players);
     });
 });
-
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 http.listen(port, () => {
     console.log(`Listening to port ${process.env.PORT}`);
 });
