@@ -16,7 +16,7 @@ const bodyParser = require("body-parser");
 const http = require("http").Server(app);
 const io = require("socket.io")(http, {
   cors: {
-    origin: "https://rainy-words.netlify.app/",
+    origin: env.CLIENT_ENDPOINT,
     methods: ["GET", "POST"],
     allowedHeaders: ["rainy-word"],
     credentials: true,
@@ -36,8 +36,8 @@ let players: Player[] = [];
 const pubChats: Chat[] = [];
 
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Hello Rainy Words!");
-  // res.sendFile(__dirname + "/index.html");
+  // res.status(200).send("Hello Rainy Words!");
+  res.sendFile(__dirname + "/index.html");
 });
 
 // Admin Login
