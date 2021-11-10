@@ -31,8 +31,8 @@ app.use((req, res, next) => {
     next();
 });
 const MAX_PLAYERS = 2;
-let LOBBY_TIME = 10;
-let GAME_TIME = 60;
+let LOBBY_TIME = 5;
+let GAME_TIME = 40;
 let players = [];
 let pubChats = [];
 app.get("/", (req, res) => {
@@ -71,6 +71,7 @@ app.post("/adminauth", (req, res, next) => {
     }
 });
 // Admin: Reset the game
+// TODO: Change LOBBY_TIME, GAME_TIME
 app.post("/reset", (req, res) => {
     const header = req.headers.authorization;
     const token = header && header.split(" ")[1];
@@ -84,10 +85,8 @@ app.post("/reset", (req, res) => {
         if (isAdmin) {
             players = [];
             pubChats = [];
-            LOBBY_TIME = 10;
-            GAME_TIME = 60;
+            io.emit("startWaitingRoomTimer", false);
             io.emit("onReset");
-            io.emit("getLobbyCountdown", LOBBY_TIME);
             return res.status(200).send({ status: "success", message: players });
         }
     }
@@ -111,10 +110,12 @@ app.post("/startgame", (req, res) => {
     try {
         const isAdmin = (0, admin_1.authenticateToken)(token);
         if (isAdmin) {
+            LOBBY_TIME = 5;
+            GAME_TIME = 40;
             io.emit("startWaitingRoomTimer", true);
             console.log("Countdown starts...");
             let words = [];
-            words = (0, words_1.randomWordsPerRound)(50);
+            words = (0, words_1.randomWordsPerRound)(80);
             io.emit("words", words);
             return res.status(200).send({
                 status: "success",
@@ -128,32 +129,34 @@ app.post("/startgame", (req, res) => {
             .send({ status: "bad request", message: "Invalid token." });
     }
 });
-function lobbyTimer() {
-    if (LOBBY_TIME >= 0) {
-        io.emit("getLobbyCountdown", LOBBY_TIME);
-        LOBBY_TIME--;
-    }
-    else {
-        clearInterval();
-    }
-}
-function gameTimer() {
-    if (GAME_TIME === 0) {
-        io.emit("stopGame");
-        clearInterval();
-    }
-    else {
-        GAME_TIME--;
-    }
-}
 io.on("connection", (socket) => {
     console.log(`${socket.id} connected`);
     // --------------------- ADMINS FUNCTION -------------------------------
     socket.on("startLobbyCountdown", function () {
-        setInterval(lobbyTimer, 1000);
+        const timer = setInterval(lobbyTimer, 1000);
+        function lobbyTimer() {
+            console.log(LOBBY_TIME);
+            if (LOBBY_TIME === 0) {
+                clearInterval(timer);
+            }
+            else {
+                LOBBY_TIME--;
+                io.emit("getLobbyCountdown", LOBBY_TIME);
+            }
+        }
     });
     socket.on("startGameCountdown", function () {
-        setInterval(gameTimer, 1000);
+        const timer = setInterval(gameTimer, 1000);
+        function gameTimer() {
+            console.log(GAME_TIME);
+            if (GAME_TIME === 0) {
+                io.emit("stopGame");
+                clearInterval(timer);
+            }
+            else {
+                GAME_TIME--;
+            }
+        }
     });
     // --------------------- PLAYERS FUNCTION -------------------------------
     // Send players to client once client connects
