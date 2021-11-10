@@ -32,10 +32,10 @@ app.use((req, res, next) => {
   next();
 });
 const MAX_PLAYERS = 2;
-let LOBBY_TIME = 5;
-let GAME_TIME = 30;
+let LOBBY_TIME = 10;
+let GAME_TIME = 60;
 let players: Player[] = [];
-const pubChats: Chat[] = [];
+let pubChats: Chat[] = [];
 
 app.get("/", (req: Request, res: Response) => {
   // res.status(200).send("Hello Rainy Words!");
@@ -75,7 +75,6 @@ app.post("/adminauth", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Admin: Reset the game
-// TODO: Change LOBBY_TIME, GAME_TIME
 app.post("/reset", (req: Request, res: Response) => {
   const header = req.headers.authorization;
   const token = header && header.split(" ")[1];
@@ -89,8 +88,9 @@ app.post("/reset", (req: Request, res: Response) => {
     const isAdmin = authenticateToken(token);
     if (isAdmin) {
       players = [];
-      LOBBY_TIME = 5;
-      GAME_TIME = 30;
+      pubChats = [];
+      LOBBY_TIME = 10;
+      GAME_TIME = 60;
       io.emit("onReset");
       io.emit("getLobbyCountdown", LOBBY_TIME);
       return res.status(200).send({ status: "success", message: players });
