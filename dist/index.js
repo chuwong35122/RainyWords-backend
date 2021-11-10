@@ -166,8 +166,8 @@ io.on("connection", (socket) => {
     // Update players, send updated players to client and the client info.
     socket.on("onAddPlayer", function (player) {
         if (players.length < MAX_PLAYERS) {
-            console.log(`${player.name} is connected. Total number of players is ${players.length}`);
             players.push(player);
+            console.log(`${player.name} is connected. Total number of players is ${players.length}`);
             io.emit("updatePlayerList", players);
         }
     });
