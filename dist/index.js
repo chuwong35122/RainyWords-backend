@@ -155,6 +155,7 @@ io.on("connection", (socket) => {
             }
             else {
                 GAME_TIME--;
+                io.emit("gameTime", GAME_TIME);
             }
         }
     });

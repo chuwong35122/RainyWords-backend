@@ -164,6 +164,7 @@ io.on("connection", (socket: Socket) => {
         clearInterval(timer);
       } else {
         GAME_TIME--;
+        io.emit("gameTime", GAME_TIME);
       }
     }
   });
